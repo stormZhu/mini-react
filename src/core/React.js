@@ -47,7 +47,6 @@ function workLoop(deadline) {
 }
 
 function commitRoot() {
-  console.log("root", root)
   commitWork(root.child)
   root = null
 }
@@ -56,13 +55,22 @@ function commitWork(fiber) {
   if (!fiber) {
     return
   }
-  console.log("append", fiber.dom)
-  fiber.parent.dom.append(fiber.dom)
+
+  // 如果当前节点是function component，它没有dom
+  if (fiber.dom) {
+    // 一个节点的parent，可能是function component，没有dom，所以需要继续往上找他的parent
+    let fiberParent = fiber.parent
+    while (!fiberParent.dom) {
+      fiberParent = fiberParent.parent
+    }
+    fiberParent.dom.append(fiber.dom)
+  }
   commitWork(fiber.child)
   commitWork(fiber.sibling)
 }
 
 function createDom(type) {
+  // console.log("createDom", type)
   return type === "TEXT_ELEMENT"
     ? document.createTextNode("")
     : document.createElement(type)
@@ -76,10 +84,8 @@ function updateProps(dom, props) {
   })
 }
 
-function initChildren(fiber) {
-  const children = fiber.props.children
+function initChildren(fiber, children) {
   let preChild = null
-
   children.forEach((child, index) => {
     const newFiber = {
       type: child.type,
@@ -99,16 +105,20 @@ function initChildren(fiber) {
 }
 
 function performWorkOfUnit(fiber) {
-  // 1. 创建dom
-  if (!fiber.dom) {
-    const dom = (fiber.dom = createDom(fiber.type))
-    // fiber.parent.dom.append(dom) // 放入dom中，改为后面统一提交
-    // 2. 设置props
-    updateProps(dom, fiber.props)
+  const isFunctionComponent = typeof fiber.type === "function"
+  if (!isFunctionComponent) {
+    // 1. 创建dom
+    if (!fiber.dom) {
+      const dom = (fiber.dom = createDom(fiber.type))
+      // fiber.parent.dom.append(dom) // 放入dom中，改为后面统一提交
+      // 2. 设置props
+      updateProps(dom, fiber.props)
+    }
   }
 
   // 3. 转换链表，设置好指针
-  initChildren(fiber)
+  const children = isFunctionComponent ? [fiber.type()] : fiber.props.children
+  initChildren(fiber, children)
 
   // 4. 返回下一个要执行的任务
   if (fiber.child) {

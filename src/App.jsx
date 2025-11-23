@@ -2,11 +2,26 @@
 // 这个需要，因为jsx需要使用React
 import React from "./core/React.js"
 
-// const App = React.createElement("div", { id: "app" }, "hello mini react")
+function Counter() {
+  return <div>counter</div>
+}
 
-// const App = function () {
-//   return <div>hello mini react</div>
-// }
-// console.log(App)
-const App = <div>hello mini react</div>
+function CounterContainer() {
+  return <Counter />
+}
+
+function App() {
+  return (
+    <div>
+      hello mini react
+      <CounterContainer />
+    </div>
+  )
+}
+// const App = (
+//   <div>
+//     hello mini react
+//     <CounterContainer />
+//   </div>
+// )
 export default App
