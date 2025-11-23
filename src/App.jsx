@@ -2,13 +2,18 @@
 // 这个需要，因为jsx需要使用React
 import React from "./core/React.js"
 
+let count = 10
+let props = { id: "1111" }
 function Counter({ num }) {
   function handleClick() {
     console.log("click")
+    count++
+    props = {}
+    React.update()
   }
   return (
-    <div>
-      counter: {num}
+    <div {...props}>
+      counter: {count}
       <button onClick={handleClick}>click</button>
     </div>
   )
@@ -23,7 +28,7 @@ function App() {
     <div>
       hello mini react
       <Counter num={10} />
-      <Counter num={20} />
+      {/* <Counter num={20} /> */}
     </div>
   )
 }
