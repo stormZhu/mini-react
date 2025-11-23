@@ -15,6 +15,7 @@ function App() {
     <div>
       hello mini react
       <Counter num={10} />
+      <Counter num={20} />
     </div>
   )
 }

@@ -128,10 +128,16 @@ function performWorkOfUnit(fiber) {
   if (fiber.child) {
     return fiber.child
   }
-  if (fiber.sibling) {
-    return fiber.sibling
+
+  // fix: parent可能没有sibling，需要一直往上
+  let nextFiber = fiber
+  while (nextFiber) {
+    if (nextFiber.sibling) {
+      return nextFiber.sibling
+    }
+    nextFiber = nextFiber.parent
   }
-  return fiber.parent?.sibling
+  return nextFiber
 }
 
 requestIdleCallback(workLoop)
