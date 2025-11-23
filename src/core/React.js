@@ -21,6 +21,7 @@ function createElement(type, props, ...children) {
 }
 
 let nextWorkOfUnit = null
+let root = null
 function render(el, container) {
   nextWorkOfUnit = {
     dom: container,
@@ -28,6 +29,7 @@ function render(el, container) {
       children: [el],
     },
   }
+  root = nextWorkOfUnit
 }
 
 function workLoop(deadline) {
@@ -36,7 +38,28 @@ function workLoop(deadline) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit)
     shouldYield = deadline.timeRemaining() < 1
   }
+
+  if (!nextWorkOfUnit && root) {
+    commitRoot()
+  }
+
   requestIdleCallback(workLoop)
+}
+
+function commitRoot() {
+  console.log("root", root)
+  commitWork(root.child)
+  root = null
+}
+
+function commitWork(fiber) {
+  if (!fiber) {
+    return
+  }
+  console.log("append", fiber.dom)
+  fiber.parent.dom.append(fiber.dom)
+  commitWork(fiber.child)
+  commitWork(fiber.sibling)
 }
 
 function createDom(type) {
@@ -44,6 +67,7 @@ function createDom(type) {
     ? document.createTextNode("")
     : document.createElement(type)
 }
+
 function updateProps(dom, props) {
   Object.keys(props).forEach((key) => {
     if (key !== "children") {
@@ -78,9 +102,7 @@ function performWorkOfUnit(fiber) {
   // 1. 创建dom
   if (!fiber.dom) {
     const dom = (fiber.dom = createDom(fiber.type))
-
-    fiber.parent.dom.append(dom) // 放入dom中
-
+    // fiber.parent.dom.append(dom) // 放入dom中，改为后面统一提交
     // 2. 设置props
     updateProps(dom, fiber.props)
   }
