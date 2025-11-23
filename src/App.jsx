@@ -2,19 +2,19 @@
 // 这个需要，因为jsx需要使用React
 import React from "./core/React.js"
 
-function Counter() {
-  return <div>counter</div>
+function Counter({ num }) {
+  return <div>counter: {num}</div>
 }
 
-function CounterContainer() {
-  return <Counter />
-}
+// function CounterContainer() {
+//   return <Counter />
+// }
 
 function App() {
   return (
     <div>
       hello mini react
-      <CounterContainer />
+      <Counter num={10} />
     </div>
   )
 }
