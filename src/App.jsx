@@ -3,7 +3,15 @@
 import React from "./core/React.js"
 
 function Counter({ num }) {
-  return <div>counter: {num}</div>
+  function handleClick() {
+    console.log("click")
+  }
+  return (
+    <div>
+      counter: {num}
+      <button onClick={handleClick}>click</button>
+    </div>
+  )
 }
 
 // function CounterContainer() {
